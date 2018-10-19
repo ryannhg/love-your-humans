@@ -14,3 +14,12 @@ Try it out here: [https://love-your-humans.netlify.com](https://love-your-humans
 1. `npm install`
 
 1. `npm run dev`
+
+
+### User Workflow
+
+1. Enter friends and numbers.
+
+1. Pick a time of day to be reminded.
+
+1. Click on a friend's name to open up messaging app.
