@@ -1,0 +1,24 @@
+{
+  "name": "love-your-humans",
+  "version": "1.0.0",
+  "description": "Remind yourself to love your humans.",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "npm run build && npm run server",
+    "dev": "npm run build:watch & npm run server",
+    "build": "elm make src/Main.elm --output=public/app.js || true",
+    "build:watch": "npm run build && chokidar './src' -c 'npm run build'",
+    "server": "serve public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/ryannhg/love-your-humans"
+  },
+  "author": "Ryan Haskell-Glatz",
+  "license": "ISC",
+  "devDependencies": {
+    "chokidar-cli": "^1.2.1",
+    "elm": "^0.19.0-bugfix2",
+    "serve": "^10.0.2"
+  }
+}
