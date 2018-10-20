@@ -6,8 +6,9 @@
   "scripts": {
     "start": "npm run build && npm run server",
     "dev": "npm run build:watch & npm run server",
-    "build": "elm make src/Main.elm --output=public/app.js || true",
-    "build:watch": "npm run build && chokidar './src' -c 'npm run build'",
+    "build": "elm make src/Main.elm --optimize --output=public/app.js || true",
+    "build:dev": "elm make src/Main.elm --debug --output=public/app.js || true",
+    "build:watch": "npm run build:dev && chokidar './src' -c 'npm run build:dev'",
     "server": "serve public"
   },
   "repository": {
