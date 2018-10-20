@@ -50,9 +50,9 @@ main =
 initialModel : Model
 initialModel =
     Model
-        HumansPage
+        MainMenu
         []
-        "Andrew"
+        ""
         ""
 
 
