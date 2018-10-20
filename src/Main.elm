@@ -1,12 +1,16 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
 import Css exposing (..)
 import Css.Transitions exposing (easeInOut, transition)
 import Html
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, type_, value)
+import Html.Styled.Attributes exposing (css, href, type_, value)
 import Html.Styled.Events exposing (onClick, onInput, onSubmit)
+import Json.Encode as E
+
+
+port outgoing : E.Value -> Cmd msg
 
 
 type alias Model =
@@ -37,52 +41,113 @@ type Msg
     = GoToHumansPage
     | UpdateFormValue Field String
     | AddHuman
+    | RemoveHuman Human
+
+
+type alias Flags =
+    { humans : List Human
+    }
+
+
+type OutgoingMessage
+    = StoreHuman Human
+    | UnstoreHuman Human
+
+
+toJs : OutgoingMessage -> E.Value
+toJs message =
+    case message of
+        StoreHuman human ->
+            action "STORE_HUMAN" (encodeHuman human)
+
+        UnstoreHuman human ->
+            action "UNSTORE_HUMAN" (encodeHuman human)
+
+
+action : String -> E.Value -> E.Value
+action action_ data_ =
+    E.object
+        [ ( "action", E.string action_ )
+        , ( "data", data_ )
+        ]
+
+
+encodeHuman : Human -> E.Value
+encodeHuman human =
+    E.object
+        [ ( "name", E.string human.name )
+        , ( "phone", E.string human.phone )
+        ]
 
 
 main =
-    Browser.sandbox
-        { init = initialModel
+    Browser.element
+        { init = init
         , update = update
         , view = toUnstyled << view
+        , subscriptions = always Sub.none
         }
 
 
-initialModel : Model
-initialModel =
-    Model
-        MainMenu
-        []
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( Model
+        (if List.isEmpty flags.humans then
+            MainMenu
+
+         else
+            HumansPage
+        )
+        flags.humans
         ""
         ""
+    , Cmd.none
+    )
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GoToHumansPage ->
-            { model | page = HumansPage }
+            ( { model | page = HumansPage }
+            , Cmd.none
+            )
 
         UpdateFormValue field newValue ->
             case field of
                 Name ->
-                    { model | name = newValue }
+                    ( { model | name = newValue }, Cmd.none )
 
                 Phone ->
-                    { model | phone = newValue }
+                    ( { model | phone = newValue }, Cmd.none )
 
         AddHuman ->
+            let
+                human : Human
+                human =
+                    Human model.name model.phone
+            in
             if String.length model.name > 0 && String.length model.phone > 0 then
-                { model
-                    | humans =
-                        model.humans
-                            ++ [ Human model.name model.phone
-                               ]
+                ( { model
+                    | humans = model.humans ++ [ human ]
                     , name = ""
                     , phone = ""
-                }
+                  }
+                , outgoing <| toJs (StoreHuman human)
+                )
 
             else
-                model
+                ( model, Cmd.none )
+
+        RemoveHuman human ->
+            ( { model
+                | humans =
+                    List.filter
+                        (\h -> h /= human)
+                        model.humans
+              }
+            , outgoing <| toJs (UnstoreHuman human)
+            )
 
 
 view : Model -> Html Msg
@@ -119,19 +184,53 @@ viewMainMenu =
 
 viewHumansPage : Model -> Html Msg
 viewHumansPage model =
-    div [ classes.page ]
-        [ viewTitle "Enter a human!"
-        , viewHumans model.humans
-        , viewForm model
+    div
+        [ css
+            [ overflow auto
+            , height (pct 100)
+            ]
+        ]
+        [ div
+            [ css
+                [ width (pct 100)
+                , boxSizing borderBox
+                , padding2 spacing.large spacing.small
+                , maxWidth (px 540)
+                , margin2 zero auto
+                ]
+            ]
+            [ viewTitle
+                (if List.isEmpty model.humans then
+                    "Enter a human!"
+
+                 else
+                    "Your humans:"
+                )
+            , viewHumans model.humans
+            , viewForm model
+            ]
         ]
 
 
 viewHumans : List Human -> Html Msg
 viewHumans humans =
-    ul [] <|
+    div [ classes.humans.list ] <|
         List.map
-            (\human -> li [] [ text human.name ])
+            viewHuman
             humans
+
+
+viewHuman : Human -> Html Msg
+viewHuman human =
+    div [ classes.humans.item ]
+        [ div [ classes.humans.info ]
+            [ h4 [ classes.humans.name ] [ text human.name ]
+            , a [ classes.humans.phone, href ("tel:" ++ human.phone) ]
+                [ text human.phone ]
+            ]
+        , button [ classes.button, onClick (RemoveHuman human) ]
+            [ text "Remove" ]
+        ]
 
 
 viewForm : Model -> Html Msg
@@ -177,8 +276,10 @@ viewTitle title_ =
 
 
 spacing =
-    { small = px 12
+    { tiny = px 8
+    , small = px 12
     , medium = px 24
+    , large = px 36
     }
 
 
@@ -217,12 +318,10 @@ classes =
             ]
     , form =
         css
-            [ displayFlex
-            , flexDirection column
-            , textAlign left
+            [ textAlign left
             , width (px 480)
             , maxWidth (pct 100)
-            , marginTop spacing.medium
+            , marginTop spacing.large
             ]
     , input =
         { label =
@@ -247,6 +346,33 @@ classes =
                 , color colors.white
                 , fontFamily inherit
                 , fontSize (rem 1.25)
+                ]
+        }
+    , humans =
+        { list =
+            css
+                [ width (pct 100)
+                , maxWidth (px 480)
+                ]
+        , item =
+            css
+                [ width (pct 100)
+                , displayFlex
+                , alignItems center
+                , paddingTop spacing.medium
+                ]
+        , info = css [ flex (int 1), textAlign left ]
+        , name =
+            css
+                [ fontSize (rem 1.5)
+                , fonts.fancy
+                , margin zero
+                , marginBottom spacing.tiny
+                ]
+        , phone =
+            css
+                [ color inherit
+                , display inlineBlock
                 ]
         }
     , title =
