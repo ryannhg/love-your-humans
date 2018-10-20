@@ -1,5 +1,5 @@
 # Love your Humans!
-> Remind yourself to remind your friends that they're loved. ❤️
+> Remind yourself to remind your humans that they're loved. ❤️
 
 ### What _is_ this?
 
