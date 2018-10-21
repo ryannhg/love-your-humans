@@ -1,33 +1,20 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.6.1/workbox-sw.js')
 
 if (workbox) {
-  const revision = '2'
+  const revision = '4'
   const urls = [
     '/style.css',
     '/app.js',
     '/start.js',
-    '/index.html'
+    '/index.html',
+    '/manifest.json',
+    '/icons/128.png',
+    '/icons/192.png',
+    '/icons/512.png'
   ]
   const revisionize = (url) => ({ url, revision })
 
   workbox.precaching.precacheAndRoute(
     urls.map(revisionize)
-  )
-
-  workbox.routing.registerRoute(
-    '/',
-    workbox.strategies.staleWhileRevalidate()
-  )
-  workbox.routing.registerRoute(
-    '/style.css',
-    workbox.strategies.staleWhileRevalidate()
-  )
-  workbox.routing.registerRoute(
-    '/app.js',
-    workbox.strategies.staleWhileRevalidate()
-  )
-  workbox.routing.registerRoute(
-    '/start.js',
-    workbox.strategies.staleWhileRevalidate()
   )
 }

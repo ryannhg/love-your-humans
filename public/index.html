@@ -8,9 +8,17 @@
   <meta name="description" content="Remind yourself to remind your humans that they're loved.">
   <link href="https://fonts.googleapis.com/css?family=Lato|Playfair+Display:700" rel="stylesheet" media="all">
   <link rel="stylesheet" href="/style.css" media="all">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffc371">
+  <link rel="icon" href="/icons/128.png">
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <div class="lds-heart__wrapper">
+      <div class="lds-heart"><div></div></div>
+      <p class="lds-heart__message">Loading...</p>
+    </div>
+  </div>
   <script src="/app.js"></script>
   <script src="/start.js"></script>
 </body>
