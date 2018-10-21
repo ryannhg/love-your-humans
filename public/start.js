@@ -44,7 +44,7 @@ const initializeElm = () => {
     if (window.reg) {
       window.reg.showNotification(notification.title)
     } else {
-      console.info('Notifications not supported...')
+      window.alert(notification.title)
     }
   }
 }
@@ -56,15 +56,18 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
   })
   // Push Notifications!
-  const setupNotifications = (status) => {
-    if (status === 'granted') {
-      navigator.serviceWorker.getRegistration()
-        .then(function (reg) {
-          window.reg = reg
-          setTimeout(initializeElm, 500)
-        })
-    }
-  }
+  const setupNotifications = () =>
+    navigator.serviceWorker.getRegistration()
 
-  Notification.requestPermission(setupNotifications)
+  Notification.requestPermission()
+    .then(status =>
+      status === 'granted'
+        ? setupNotifications()
+        : undefined
+    )
+    .then(function (reg) {
+      window.reg = reg
+      setTimeout(initializeElm, 500)
+    })
+
 }
