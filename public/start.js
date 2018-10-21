@@ -1,3 +1,5 @@
+// Elm stuff
+
 var app = window.Elm.Main.init({
   node: document.getElementById('app'),
   flags: {
@@ -34,4 +36,12 @@ function removeHuman (human) {
 
 function getHumans () {
   return JSON.parse(window.localStorage.getItem('humans')) || []
+}
+
+// PWA Stuff
+if ('serviceWorker' in navigator) {
+  // Use the window load event to keep the page load performant
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+  })
 }
