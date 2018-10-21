@@ -3,7 +3,7 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.6.1/workbox
 if (workbox) {
   const revision = '1'
   const urls = [
-    '/styles.css',
+    '/style.css',
     '/app.js',
     '/start.js',
     '/index.html'
