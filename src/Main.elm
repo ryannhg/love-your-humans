@@ -38,7 +38,7 @@ type Page
 
 
 type Msg
-    = GoToHumansPage
+    = GetStarted
     | UpdateFormValue Field String
     | AddHuman
     | RemoveHuman Human
@@ -58,6 +58,7 @@ type alias Notification =
 type OutgoingMessage
     = StoreHuman Human
     | UnstoreHuman Human
+    | RequestNotificationPermissions
     | SendNotification Notification
 
 
@@ -69,6 +70,9 @@ toJs message =
 
         UnstoreHuman human ->
             action "UNSTORE_HUMAN" (encodeHuman human)
+
+        RequestNotificationPermissions ->
+            action "REQUEST_NOTIFICATION_PERMISSIONS" E.null
 
         SendNotification notification ->
             action "SEND_NOTIFICATION" (encodeNotification notification)
@@ -147,9 +151,9 @@ sendNotification humans =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GoToHumansPage ->
+        GetStarted ->
             ( { model | page = HumansPage }
-            , Cmd.none
+            , outgoing <| toJs RequestNotificationPermissions
             )
 
         UpdateFormValue field newValue ->
@@ -215,7 +219,7 @@ viewMainMenu =
             [ text "Remind yourself to remind your humans you love them." ]
         , button
             [ classes.button
-            , onClick GoToHumansPage
+            , onClick GetStarted
             ]
             [ text "Get started" ]
         ]
@@ -415,7 +419,7 @@ classes =
     , title =
         css
             [ fonts.fancy
-            , fontSize (rem 4)
+            , fontSize (rem 3.5)
             , margin zero
             , marginBottom spacing.small
             , lineHeight (rem 4.25)

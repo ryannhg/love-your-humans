@@ -14,6 +14,8 @@ const initializeElm = () => {
         return storeHuman(msg.data)
       case 'UNSTORE_HUMAN':
         return removeHuman(msg.data)
+      case 'REQUEST_NOTIFICATION_PERMISSIONS':
+        return requestNotificationPermissions()
       case 'SEND_NOTIFICATION':
         return sendNotification(msg.data)
     }
@@ -47,6 +49,22 @@ const initializeElm = () => {
       window.alert(notification.title)
     }
   }
+
+  function requestNotificationPermissions () {
+    if ('Notification' in window) {
+      Notification.requestPermission()
+        .then(status =>
+          status === 'granted'
+            ? navigator.serviceWorker.getRegistration()
+              .then(setToWindow)
+            : undefined
+        )
+    }
+  }
+}
+
+function setToWindow (reg) {
+  window.reg = reg
 }
 
 // PWA Stuff
@@ -55,19 +73,9 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
   })
-  // Push Notifications!
-  const setupNotifications = () =>
+  if (Notification.permission === 'granted') {
     navigator.serviceWorker.getRegistration()
-
-  Notification.requestPermission()
-    .then(status =>
-      status === 'granted'
-        ? setupNotifications()
-        : undefined
-    )
-    .then(function (reg) {
-      window.reg = reg
-      setTimeout(initializeElm, 500)
-    })
-
+      .then(setToWindow)
+  }
 }
+setTimeout(initializeElm, 500)
