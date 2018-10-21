@@ -49,9 +49,16 @@ type alias Flags =
     }
 
 
+type alias Notification =
+    { title : String
+    , body : String
+    }
+
+
 type OutgoingMessage
     = StoreHuman Human
     | UnstoreHuman Human
+    | SendNotification Notification
 
 
 toJs : OutgoingMessage -> E.Value
@@ -62,6 +69,9 @@ toJs message =
 
         UnstoreHuman human ->
             action "UNSTORE_HUMAN" (encodeHuman human)
+
+        SendNotification notification ->
+            action "SEND_NOTIFICATION" (encodeNotification notification)
 
 
 action : String -> E.Value -> E.Value
@@ -77,6 +87,18 @@ encodeHuman human =
     E.object
         [ ( "name", E.string human.name )
         , ( "phone", E.string human.phone )
+        ]
+
+
+encodeNotification : Notification -> E.Value
+encodeNotification notification =
+    E.object
+        [ ( "title", E.string notification.title )
+        , ( "options"
+          , E.object
+                [ ( "body", E.string notification.body )
+                ]
+          )
         ]
 
 
@@ -101,8 +123,25 @@ init flags =
         flags.humans
         ""
         ""
-    , Cmd.none
+    , sendNotification flags.humans
     )
+
+
+sendNotification : List Human -> Cmd Msg
+sendNotification humans =
+    case List.head humans of
+        Just human ->
+            outgoing <|
+                toJs
+                    (SendNotification
+                        (Notification
+                            ("Text " ++ human.name ++ "!")
+                            human.phone
+                        )
+                    )
+
+        Nothing ->
+            Cmd.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

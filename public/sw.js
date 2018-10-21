@@ -1,7 +1,7 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.6.1/workbox-sw.js')
 
 if (workbox) {
-  const revision = '5'
+  const revision = '6'
   const urls = [
     '/style.css',
     '/app.js',
