@@ -293,15 +293,13 @@ colors =
 
 fonts =
     { fancy = fontFamilies [ "Playfair Display" ]
-    , sansSerif = fontFamilies [ "Lato" ]
     }
 
 
 classes =
     { app =
         css
-            [ fonts.sansSerif
-            , backgroundImage (linearGradient (stop colors.yellow) (stop colors.pink) [])
+            [ backgroundImage (linearGradient (stop colors.yellow) (stop colors.pink) [])
             , color colors.white
             , height (pct 100)
             ]
