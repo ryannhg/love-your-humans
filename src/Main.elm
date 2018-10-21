@@ -419,7 +419,8 @@ classes =
     , title =
         css
             [ fonts.fancy
-            , fontSize (rem 3.5)
+            , fontSize (rem 3.25)
+            , textAlign center
             , margin zero
             , marginBottom spacing.small
             , lineHeight (rem 4.25)
