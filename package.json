@@ -4,12 +4,15 @@
   "description": "Remind yourself to love your humans.",
   "main": "public/index.html",
   "scripts": {
-    "start": "npm run build && npm run server",
-    "dev": "npm run build:watch & npm run server",
-    "build": "elm make src/Main.elm --optimize --output=public/app.js || true",
-    "build:dev": "elm make src/Main.elm --debug --output=public/app.js || true",
-    "build:watch": "npm run build:dev && chokidar './src' -c 'npm run build:dev'",
-    "server": "serve public"
+    "start": "npm run build:elm && npm run serve",
+    "dev": "npm run build:elm:watch & npm run serve & npm run serve:lambda",
+    "build": "npm run build:lambda && npm run build:elm",
+    "build:elm": "elm make src/Main.elm --optimize --output=public/app.js || true",
+    "build:elm:dev": "elm make src/Main.elm --debug --output=public/app.js || true",
+    "build:elm:watch": "npm run build:elm:dev && chokidar './src' -c 'npm run build:elm:dev'",
+    "build:lambda": "netlify-lambda build api",
+    "serve:lambda": "netlify-lambda serve api",
+    "serve": "serve public"
   },
   "repository": {
     "type": "git",
@@ -20,6 +23,7 @@
   "devDependencies": {
     "chokidar-cli": "^1.2.1",
     "elm": "^0.19.0-bugfix2",
+    "netlify-lambda": "^1.0.2",
     "serve": "^10.0.2"
   }
 }
